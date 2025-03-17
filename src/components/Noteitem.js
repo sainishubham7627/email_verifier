@@ -30,7 +30,7 @@ const Noteitem = (props) => {
           <p className="card-text">{note.description}</p>
           {note.file && (
             <a
-              href={`http://localhost:5000/${note.file}`}
+              href={`https://noteify-h79j.onrender.com/${note.file}`}
               className="btn btn-primary mt-2 my-2"
               target="_blank"
               rel="noreferrer"
@@ -47,12 +47,12 @@ const Noteitem = (props) => {
               {note.file.match(/\.(jpeg|jpg|gif|png)$/) && (
                 <>
                   <img
-                    src={`http://localhost:5000/${note.file}`}
+                    src={`https://noteify-h79j.onrender.com/${note.file}`}
                     alt="Uploaded"
                     style={{ width: "100%", maxHeight: "100%" }}
                   />
                   <a
-                    href={`http://localhost:5000/${note.file}`}
+                    href={`https://noteify-h79j.onrender.com/${note.file}`}
                     download
                     className="btn btn-primary mt-2 my-2"
                     style={{
@@ -69,13 +69,13 @@ const Noteitem = (props) => {
                 <>
                   <video controls style={{ width: "100%" }}>
                     <source
-                      src={`http://localhost:5000/${note.file}`}
+                      src={`https://noteify-h79j.onrender.com/${note.file}`}
                       type="video/mp4"
                     />
                     Your browser does not support the video tag.
                   </video>
                   <a
-                    href={`http://localhost:5000/${note.file}`}
+                    href={`https://noteify-h79j.onrender.com/${note.file}`}
                     download
                     className="btn btn-primary mt-2 my-2"
                     style={{
@@ -91,13 +91,13 @@ const Noteitem = (props) => {
               {note.file.match(/\.pdf$/) && (
                 <>
                   <iframe
-                    src={`http://localhost:5000/${note.file}`}
+                    src={`https://noteify-h79j.onrender.com/${note.file}`}
                     width="100%"
                     height="100%"
                     title="PDF Viewer"
                   ></iframe>
                   <a
-                    href={`http://localhost:5000/${note.file}`}
+                    href={`https://noteify-h79j.onrender.com/${note.file}`}
                     download
                     className="btn btn-primary mt-2 my-2 mx-5"
                     style={{
