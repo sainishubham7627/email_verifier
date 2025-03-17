@@ -1,14 +1,15 @@
+require('dotenv').config();  // Load environment variables
 const mongoose = require('mongoose');
-const mongoURI = "mongodb://localhost:27017/noteify";
 
-const connectToMongo = async () => {
-    try {
-        // Mongoose 6+ no longer requires `useNewUrlParser` or `useUnifiedTopology`
-        await mongoose.connect(mongoURI);
-        console.log("Connected to MongoDB successfully");
-    } catch (err) {
-        console.error("MongoDB connection error:", err);
-    }
+const mongoURI = process.env.MONGO_URI;  // Use MongoDB Atlas URI from .env
+
+const connectToMongo = () => {
+    mongoose.connect(mongoURI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => console.log("Connected to MongoDB Atlas"))
+    .catch((e) => console.log("MongoDB connection error:", e.message));
 };
 
 module.exports = connectToMongo;

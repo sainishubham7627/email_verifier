@@ -1,4 +1,3 @@
-
 .App {
   text-align: center;
 }
@@ -15,7 +14,7 @@
 }
 
 .App-header {
-  background-color: #17191c;
+  background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -37,32 +36,4 @@
     transform: rotate(360deg);
   }
 }
-
-/* Navbar always stays black */
-.navbar-dark.bg-dark {
-  background-color: #000000 !important;
-  color: white;
-}
-
-/* Body styles for dark mode */
-body.dark-mode {
-  background-color: #121212;
-  color: white;
-}
-
-/* Optional: Customize buttons for better visibility in both modes */
-.btn-outline-primary {
-  color: white;
-  border-color: white;
-}
-
-.btn-outline-primary:hover {
-  background-color: grey;
-  border-color: white;
-}
-.text-muted {
-  font-size: 0.85rem;
-  color: #6c757d;
-}
-
 

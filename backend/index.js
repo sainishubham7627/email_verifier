@@ -1,21 +1,26 @@
-const connectToMongo = require('./db');  // Import Mongo connection function
-const express = require('express');
-const cors = require('cors');
+const connectToMongo = require('./db');
+const express = require('express')
+var cors = require('cors')
 
-const app = express();
-const port = 5000;
+const path = require("path");
 
-// Connect to MongoDB
 connectToMongo();
+const app = express()
+const port = 5000
 
-app.use(cors());
-app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, '../', 'uploads')));
 
-// Available Routes
-app.use('/api/auth', require('./routes/auth')); // Authentication routes
-app.use('/api/notes', require('./routes/notes')); // Notes routes
 
-// Start the server
+app.use(cors())
+app.use(express.json())
+
+app.use('/api/auth',require(('./routes/auth')))
+app.use('/api/notes',require(('./routes/notes')))
+
+
+
+
 app.listen(port, () => {
-    console.log(`Noteify backend listening at http://localhost:${port}`);
-});
+  console.log(`Noteify backend listening on port http://localhost:${port}`)
+})
+
