@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import noteContext from '../Context/notes/noteContext';
+import notecontext from '../Context/notes/notecontext';
 import Noteitem from './Noteitem';
 import AddNote from './AddNote';
 import {Link, useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import Image2 from './Noteify_darker_brown_logo.jpg';
 
 
 const Notes = (props) => {
-    const context = useContext(noteContext);
+    const context = useContext(notecontext);
     let navigate = useNavigate();
     const {notes, getNotes, editNote} = context;
     useEffect(()=> {

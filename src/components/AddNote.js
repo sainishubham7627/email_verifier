@@ -1,9 +1,9 @@
 import React, { useState , useContext, useRef} from 'react'
-import noteContext from '../Context/notes/noteContext';
+import notecontext from '../Context/notes/notecontext';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const AddNote = (props) => {
-    const context = useContext(noteContext);
+    const context = useContext(notecontext);
     const {addNote} = context;
     
     const [note,setNote] = useState({title: "", description: "",tag: "default", file: null})
