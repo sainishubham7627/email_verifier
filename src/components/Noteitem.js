@@ -30,14 +30,14 @@ const Noteitem = (props) => {
           <p className="card-text">{note.description}</p>
           {note.file && (
             <a
-              href={`https://noteify-h79j.onrender.com/${note.file}`}
+              href={`http://localhost:3000/${note.file}`}
               className="btn btn-primary mt-2 my-2"
               target="_blank"
               rel="noreferrer"
               style={{
                 color: "white",
                 backgroundColor: "  rgb(94, 63, 45)",
-                borderRadius: "40000px",
+                borderRadius: "30000px",
               }}
             ></a>
           )}
@@ -47,18 +47,18 @@ const Noteitem = (props) => {
               {note.file.match(/\.(jpeg|jpg|gif|png)$/) && (
                 <>
                   <img
-                    src={`https://noteify-h79j.onrender.com/${note.file}`}
+                    src={`http://localhost:3000/${note.file}`}
                     alt="Uploaded"
                     style={{ width: "100%", maxHeight: "100%" }}
                   />
                   <a
-                    href={`https://noteify-h79j.onrender.com/${note.file}`}
+                    href={`http://localhost:3000/${note.file}`}
                     download
                     className="btn btn-primary mt-2 my-2"
                     style={{
                       color: "white",
                       backgroundColor: " rgb(94, 63, 45)",
-                      borderRadius: "40000000px",
+                      borderRadius: "30000000px",
                     }}
                   >
                     Download Image
@@ -69,19 +69,19 @@ const Noteitem = (props) => {
                 <>
                   <video controls style={{ width: "100%" }}>
                     <source
-                      src={`https://noteify-h79j.onrender.com/${note.file}`}
+                      src={`http://localhost:3000/${note.file}`}
                       type="video/mp4"
                     />
                     Your browser does not support the video tag.
                   </video>
                   <a
-                    href={`https://noteify-h79j.onrender.com/${note.file}`}
+                    href={`http://localhost:3000/${note.file}`}
                     download
                     className="btn btn-primary mt-2 my-2"
                     style={{
                       color: "white",
                       backgroundColor: " rgb(94, 63, 45)",
-                      borderRadius: "40000000px",
+                      borderRadius: "30000000px",
                     }}
                   >
                     Download Video
@@ -91,19 +91,19 @@ const Noteitem = (props) => {
               {note.file.match(/\.pdf$/) && (
                 <>
                   <iframe
-                    src={`https://noteify-h79j.onrender.com/${note.file}`}
+                    src={`http://localhost:3000/${note.file}`}
                     width="100%"
                     height="100%"
                     title="PDF Viewer"
                   ></iframe>
                   <a
-                    href={`https://noteify-h79j.onrender.com/${note.file}`}
+                    href={`http://localhost:3000/${note.file}`}
                     download
                     className="btn btn-primary mt-2 my-2 mx-5"
                     style={{
                       color: "white",
                       backgroundColor: " rgb(94, 63, 45)",
-                      borderRadius: "40000000px",
+                      borderRadius: "30000000px",
                     }}
                   >
                     Download PDF

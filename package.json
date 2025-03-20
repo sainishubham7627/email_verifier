@@ -7,7 +7,6 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.3",
-    "concurrently": "^9.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "dotenv-safe": "^9.1.0",
@@ -25,7 +24,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set PORT=8080 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -51,6 +50,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "concurrently": "^9.1.2",
     "nodemon": "^3.1.9",
     "terser-brunch": "^4.1.0"
   }

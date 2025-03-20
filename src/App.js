@@ -11,46 +11,24 @@ import NoteState from './Context/notes/NoteState';
 import Alert from './components/Alert';
 import Login from './components/Login';
 import Signup from './components/Signup';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import AddNote from './components/AddNote';
+import VerifyEmail from './components/verifyEmail';
+
+import VerifyEmailNotice from './components/VerifyEmailNotice';
 
 function App() {
   const [alert, setAlert] = useState(null);
-  const [socket, setSocket] = useState(null);
-
-  // Function to show alert messages
+  
   const showAlert = (message, type) => {
     setAlert({
       msg: message,
       type: type
-    })
+    });
     setTimeout(() => {
-      setAlert(null)
-    }, 1500)
-  }
-
-  // WebSocket Connection
-  useEffect(() => {
-    const newSocket = new WebSocket("wss://noteify-h79j.onrender.com/ws");
-    setSocket(newSocket);
-
-    newSocket.onopen = () => {
-      console.log("WebSocket Connected");
-    };
-
-    newSocket.onmessage = (event) => {
-      console.log("Received:", event.data);
-    };
-
-    newSocket.onclose = () => {
-      console.log("WebSocket Disconnected");
-    };
-
-    // Cleanup on component unmount
-    return () => {
-      newSocket.close();
-    };
-  }, []);
+      setAlert(null);
+    }, 1500);
+  };
 
   return (
     <>
@@ -65,6 +43,8 @@ function App() {
               <Route exact path="/about" element={<About />} />
               <Route exact path="/login" element={<Login showAlert={showAlert} />} />
               <Route exact path="/signup" element={<Signup showAlert={showAlert} />} />
+              <Route exact path="/verify-email/:token" element={<VerifyEmail showAlert={showAlert} />} />
+              <Route exact path="/verify-email-notice" element={<VerifyEmailNotice />} />
             </Routes>
           </div>
         </Router>

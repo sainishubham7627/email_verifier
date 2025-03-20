@@ -1,31 +1,25 @@
 const mongoose = require('mongoose');
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
-const NotesSchema = new Schema({
-    user:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user'
-    },
-    title:{
+const UserSchema = new Schema({
+    name: {
         type: String,
         required: true
     },
-    description:{
+    email: {
         type: String,
         required: true,
+        unique: true
     },
-    tag:{
+    password: {
         type: String,
-        default: "General"
+        required: true
     },
-    date:{
-        type: String,
+    date: {
+        type: Date,
         default: Date.now
-    },
-    file:{
-        type: String,
-        default: null
     }
-  });
+});
 
-  module.exports = mongoose.model('notes',NotesSchema)
+// Prevent model overwrite error
+module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
