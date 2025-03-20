@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const User = require('../models/User');
 const router = express.Router();
@@ -7,12 +5,12 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const sendEmail = require('../utils/sendEmail');  // Import email function
+const sendEmail = require('../utils/sendEmail');
 
 const JWT_SECRET = "shubhamisagoodb$oy";
-const CLIENT_URL = "http://localhost:3000"; // Change to your frontend URL
+const CLIENT_URL = "http://localhost:3000"; // Change this to your frontend URL
 
-// Signup Route with Email Verification
+// 📌 Signup Route with Email Verification
 router.post('/createuser', [
     body('name', 'Enter a valid name').isLength({ min: 3 }),
     body('email', 'Enter a valid email').isEmail(),
@@ -32,56 +30,91 @@ router.post('/createuser', [
 
         const salt = await bcrypt.genSalt(10);
         const secPass = await bcrypt.hash(req.body.password, salt);
-        const verificationToken = crypto.randomBytes(32).toString('hex');  // Generate verification token
+        
+        // ✅ Generate a unique verification token & expiration time
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const tokenExpiration = new Date(Date.now() + 60 * 60 * 1000); // 1 hour validity
 
+        // ✅ Create user with default `isVerified: false`
         user = new User({
             name: req.body.name,
             password: secPass,
             email: req.body.email,
-            verificationToken: verificationToken
+            verificationToken: verificationToken,
+            isVerified: false,
+            tokenExpiration: tokenExpiration
         });
 
         await user.save();
-
-        // Send verification email
-        const verifyLink = `${CLIENT_URL}/verify-email/${verificationToken}`;
-        const message = `<h1>Email Verification</h1>
-                         <p>Click the link below to verify your email:</p>
-                         <a href="${verifyLink}" target="_blank">${verifyLink}</a>`;
+ console.log(user.id)
+        // 📩 Send verification email
+        const verifyLink = `${CLIENT_URL}/api/auth/verify-email/${verificationToken}`;
+        const message = `
+            <h1>Email Verification</h1>
+            <p>Click the link below to verify your email:</p>
+            <a href="${verifyLink}" target="_blank">${verifyLink}</a>
+            <p><b>Note:</b> This link will expire in 1 hour.</p>
+        `;
 
         await sendEmail(user.email, "Email Verification", message);
         success = true;
 
-        res.json({ success, message: "Verification email sent. Please verify your email." });
+        res.json({ success, message: "Verification email sent. Please check your inbox." });
 
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send("Some error occurred");
+        console.error("Signup Error:", error.message);
+        res.status(500).json({ success: false, message: "Some error occurred" });
     }
 });
 
-// Email Verification Route
-router.get('/verify-email/:token', async (req, res) => {
+// 📌 Email Verification Route
+router.get('/:token', async (req, res) => {
     try {
-        const user = await User.findOne({ verificationToken: req.params.token });
+        let user = await User.findOne({ verificationToken: req.params.token });
 
         if (!user) {
-            return res.status(400).json({ success: false, error: "Invalid or expired verification token" });
+            return res.redirect(`${CLIENT_URL}/api/auth/verify-email?status=error&message=Invalid or expired token`);
         }
 
+        // ✅ Check if the token has expired
+        if (user.tokenExpiration && user.tokenExpiration < new Date()) {
+            // 🔥 Generate a new token & send a new email
+            const newToken = crypto.randomBytes(32).toString('hex');
+            user.verificationToken = newToken;
+            user.tokenExpiration = new Date(Date.now() + 60 * 60 * 1000); // 1 hour validity
+            await user.save();
+
+            const verifyLink = `${CLIENT_URL}/verify-email/${newToken}`;
+            const message = `<h1>Email Verification</h1>
+                <p>Your previous token expired. Click the link below to verify:</p>
+                <a href="${verifyLink}" target="_blank">${verifyLink}</a>`;
+
+            await sendEmail(user.email, "New Email Verification", message);
+
+            return res.redirect(`${CLIENT_URL}/verify-email?status=expired&message=Verification token expired. New email sent.`);
+        }
+
+        // ✅ If already verified, redirect to login
+        if (user.isVerified) {
+            return res.redirect(`${CLIENT_URL}/login?status=already_verified`);
+        }
+
+        // ✅ Mark user as verified
         user.isVerified = true;
         user.verificationToken = null;
+        user.tokenExpiration = null;
         await user.save();
 
-        res.json({ success: true, message: "Email verified successfully" });
+        // ✅ Redirect to frontend login page after success
+        return res.redirect(`${CLIENT_URL}/login?status=success`);
 
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send("Server Error");
+        console.error("Verification Error:", error.message);
+        return res.redirect(`${CLIENT_URL}/verify-email?status=error&message=Server error. Try again later.`);
     }
 });
 
-// Login Route (Only allow verified users)
+// 📌 Login Route (Only allow verified users)
 router.post('/login', [
     body('email', 'Enter a valid email').isEmail(),
     body('password', 'Password cannot be blank').exists(),
@@ -99,6 +132,7 @@ router.post('/login', [
             return res.status(400).json({ error: "Invalid credentials" });
         }
 
+        // ✅ Prevent login if email is not verified
         if (!user.isVerified) {
             return res.status(400).json({ error: "Please verify your email before logging in" });
         }
@@ -114,8 +148,8 @@ router.post('/login', [
         res.json({ success, authtoken });
 
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send("Internal Server Error");
+        console.error("Login Error:", error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
 

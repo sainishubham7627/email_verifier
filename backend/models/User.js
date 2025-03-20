@@ -15,11 +15,19 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
-    date: {
-        type: Date,
-        default: Date.now
+    verificationToken: {
+        type: String,  
+        default: null  
+    },
+    tokenExpiration: {  
+        type: Date,  
+        default: null  
+    },
+    isVerified: {
+        type: Boolean,  
+        default: false
     }
-});
+}, { timestamps: true });  // ✅ Auto-adds createdAt & updatedAt
 
 // Prevent model overwrite error
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
