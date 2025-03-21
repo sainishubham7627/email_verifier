@@ -1,3 +1,5 @@
+require('dotenv').config();  // Ensure to load .env file
+
 const express = require('express');
 const User = require('../models/User');
 const router = express.Router();
@@ -7,8 +9,8 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
 
-const JWT_SECRET = "shubhamisagoodb$oy";
-const CLIENT_URL = "http://localhost:3000"; // Change this to your frontend URL
+const JWT_SECRET = process.env.JWT_SECRET;  // Load JWT_SECRET from .env
+const CLIENT_URL = process.env.CLIENT_URL;  // Load CLIENT_URL from .env
 
 // 📌 Signup Route with Email Verification
 router.post('/createuser', [
@@ -46,9 +48,10 @@ router.post('/createuser', [
         });
 
         await user.save();
- console.log(user.id)
+
         // 📩 Send verification email
-        const verifyLink = `${CLIENT_URL}/api/auth/verify-email/${verificationToken}`;
+        const verifyLink = `${CLIENT_URL}/api/auth/verify-email/${verificationToken}`; // Generate the verification link
+
         const message = `
             <h1>Email Verification</h1>
             <p>Click the link below to verify your email:</p>
@@ -68,12 +71,12 @@ router.post('/createuser', [
 });
 
 // 📌 Email Verification Route
-router.get('/:token', async (req, res) => {
+router.get('/verify-email/:token', async (req, res) => {
     try {
         let user = await User.findOne({ verificationToken: req.params.token });
 
         if (!user) {
-            return res.redirect(`${CLIENT_URL}/api/auth/verify-email?status=error&message=Invalid or expired token`);
+            return res.redirect(`${CLIENT_URL}/verify-email?status=error&message=Invalid or expired token`);
         }
 
         // ✅ Check if the token has expired
@@ -106,7 +109,7 @@ router.get('/:token', async (req, res) => {
         await user.save();
 
         // ✅ Redirect to frontend login page after success
-        return res.redirect(`${CLIENT_URL}/login?status=success`);
+        return res.redirect(`${CLIENT_URL}/login?status=success&message=Email verified successfully! You can now log in.`);
 
     } catch (error) {
         console.error("Verification Error:", error.message);
@@ -129,7 +132,7 @@ router.post('/login', [
     try {
         let user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ error: "Invalid credentials" });
+            return res.status(400).json({ error: "Invalid email or password" });
         }
 
         // ✅ Prevent login if email is not verified
@@ -143,7 +146,7 @@ router.post('/login', [
         }
 
         const data = { user: { id: user.id } };
-        const authtoken = jwt.sign(data, JWT_SECRET);
+        const authtoken = jwt.sign(data, JWT_SECRET, { expiresIn: '1h' }); // Set token expiration
         success = true;
         res.json({ success, authtoken });
 

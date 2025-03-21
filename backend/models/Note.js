@@ -1,25 +1,41 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const UserSchema = new Schema({
-    name: {
+const NoteSchema = new Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    title: {
         type: String,
         required: true
     },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
+    description: {
         type: String,
         required: true
+    },
+    tag: {
+        type: String,
+        default: "General"
     },
     date: {
         type: Date,
         default: Date.now
+    },
+    email: {
+        type: String,
+        validate: {
+            validator: function (value) {
+                return this.sendAt ? !!value : true;
+            },
+            message: "Email is required when setting a reminder."
+        }
+    },
+    sendAt: {
+        type: Date,
+        index: true
     }
 });
 
-// Prevent model overwrite error
-module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
+module.exports = mongoose.models.Note || mongoose.model('Note', NoteSchema);

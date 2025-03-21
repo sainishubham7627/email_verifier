@@ -9,38 +9,33 @@ const Signup = (props) => {
         cpassword: ""
     });
 
-    const [emailSent, setEmailSent] = useState(false); // ✅ Track if verification email is sent
+    const [emailSent, setEmailSent] = useState(false); // Track if verification email is sent
     let navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const { name, email, password, cpassword } = credentials;
 
-        // 🔹 Password confirmation check
+        // Password confirmation check
         if (password !== cpassword) {
             props.showAlert("Passwords do not match", "danger");
             return;
         }
 
         try {
-            const response = await fetch("http://localhost:3000/api/auth/createuser", { // ✅ Update port if needed
+            const response = await fetch("http://localhost:5000/api/auth/createuser", { // Update port to 5000
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password }),
             });
 
-            const text = await response.text(); // Read response as text
-            let json;
-            try {
-                json = JSON.parse(text); // Try parsing as JSON
-            } catch {
-                throw new Error(text); // If not JSON, throw error
-            }
+            // Handle the JSON response
+            const json = await response.json();
 
             console.log(json);
 
             if (json.success) {
-                setEmailSent(true); // ✅ Show verification message
+                setEmailSent(true); // Show verification message
                 props.showAlert("Verification email sent. Please check your inbox.", "success");
 
                 // Optional: Redirect to a verification page
@@ -62,7 +57,7 @@ const Signup = (props) => {
         <div className="container d-flex justify-content-center align-items-center flex-column mt-3">
             <h2>Signup to Notify</h2>
 
-            {emailSent ? ( // ✅ Show message when email is sent
+            {emailSent ? ( // Show message when email is sent
                 <div className="alert alert-success">
                     <p>Verification email sent! Please check your inbox and verify your email.</p>
                 </div>

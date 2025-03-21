@@ -1,14 +1,27 @@
-import { Link } from "react-router-dom";
+import React, { useEffect } from 'react';
 
-const VerifyEmailNotice = () => {
-  return (
-    <div>
-      <h2>Verification Email Sent</h2>
-      <p>Please check your inbox and click the verification link to activate your account.</p>
-      <p>If you didn't receive the email, check your spam folder.</p>
-      <Link to="/login">Back to Login</Link>
-    </div>
-  );
+const EmailVerificationPage = () => {
+    useEffect(() => {
+        // Extract status and message from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        const message = urlParams.get('message');
+
+        // Display the alert based on the status
+        if (status === 'success') {
+            alert(message); // Show success message
+        } else if (status === 'error') {
+            alert(message); // Show error message
+        }
+    }, []); // Empty dependency array ensures it runs once when the component mounts
+
+    return (
+        <div>
+            <h1>Email Verification</h1>
+            {/* Display your page content here */}
+            <p>Follow the instructions to verify your email address.</p>
+        </div>
+    );
 };
 
-export default VerifyEmailNotice;
+export default EmailVerificationPage;
