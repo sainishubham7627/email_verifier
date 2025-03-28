@@ -5,40 +5,13 @@ const { body, validationResult } = require("express-validator");
 
 const fetchuser = require("../middleware/fetchuser");
 const Note = require("../models/Note");
+const path = require("path");
 
 // 📂 Ensure "uploads" folder exists
-const uploadDir = "uploads";
 const fs = require("fs");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
 
-// 📂 Configure Multer for File Uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    },
-});
-
-// Set file size limit and file filter
-const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
-    fileFilter: (req, file, cb) => {
-        const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "video/mp4", "video/mkv", "application/pdf"];
-        if (allowedMimeTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error("Invalid file type. Only images, videos, and PDFs are allowed."), false);
-        }
-    },
-});
 
 // ✅ Serve uploaded files statically
-router.use("/uploads", express.static(uploadDir));
 
 // ✅ ROUTE 1: Fetch All Notes (GET "/api/notes/fetchallnotes") - Login required
 router.get("/fetchallnotes", fetchuser, async (req, res) => {
@@ -50,6 +23,14 @@ router.get("/fetchallnotes", fetchuser, async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
+// 📂 Configure Multer for File Uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+  });
+  const upload = multer({ storage });
+// Set file size limit and file filter
 
 // ✅ ROUTE 2: Add a New Note with File Upload (POST "/api/notes/addnote") - Login required
 router.post(
@@ -76,7 +57,7 @@ router.post(
                 description,
                 tag,
                 user: req.user.id,
-                file: req.file ? `/uploads/${req.file.filename}` : null,
+                 file: req.file ? req.file.path : null,
                 sendAt: sendAt ? new Date(sendAt) : null,
                 email: sendAt ? email : null,
             });
@@ -101,13 +82,7 @@ router.put("/updatenote/:id", fetchuser, upload.single("file"), async (req, res)
             return res.status(401).send("Not Allowed");
         }
 
-        // 🗑️ Delete old file if a new one is uploaded
-        if (req.file && note.file) {
-            const oldFilePath = note.file.replace("/uploads/", "uploads/");
-            if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath);
-            }
-        }
+       
 
         // ✅ Update note fields
         note.title = title || note.title;
