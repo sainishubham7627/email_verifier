@@ -28,9 +28,7 @@ console.log("🔍 Loaded MONGO_URI:", process.env.MONGO_URI ? "✅ Loaded!" : "�
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Correct path
-
-// API Routes
+app.use('/uploads', express.static(path.join(__dirname, '../', 'uploads')));// API Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/notes", require("./routes/notes"));
 app.use("/api/verifyEmail", require("./routes/verifyEmail"));
