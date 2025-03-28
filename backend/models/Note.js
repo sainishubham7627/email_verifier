@@ -23,6 +23,10 @@ const NoteSchema = new Schema({
         type: Date,
         default: Date.now
     },
+    file:{
+        type: String,
+        default: null
+    }
     email: {
         type: String,
         validate: {
