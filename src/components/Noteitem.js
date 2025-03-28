@@ -1,37 +1,84 @@
-import React, { useEffect, useState } from "react";
+import React, {useContext} from 'react'
+import noteContext from '../Context/notes/noteContext';
 
-const NoteItem = () => {
-    const [notes, setNotes] = useState([]);
+const Noteitem = (props) => {
+  const context = useContext(noteContext);
+  const  {deleteNote} = context;
+  const  {note, updateNote} = props;
+  return (
+    <div className='col-md-3'>
+      <div className="card my-3">
+        <div className="card-body">
+            <div className='d-flex align-items.center'>
+                <h5 className="card-title">{note.title}</h5>
+                <i className="far fa-trash-alt mx-2" onClick={()=>{deleteNote(note._id); props.showAlert("Deleted Successfully", "success")}} style={{color: "purple"}}></i>
+                <i className="far fa-edit mx-2" onClick={()=>{updateNote(note)}} style={{color: "purple"}}></i>
+            </div>
+            <p className="card-text">{note.description}</p>
+            {/* {note.file && <a href={`http://localhost:5000/${note.file}`} className="btn btn-primary mt-2 my-2" target="_blank" rel="noreferrer" style={{color: "white",backgroundColor: "purple", borderRadius: "4px"}}>Open in new Tab</a>} */}
+            <br></br>
+            {note.file && (
+            <>
+              {note.file.match(/\.(jpeg|jpg|gif|png)$/) && (
+                <>
+                <a
+                    href={`http://localhost:5000/${note.file}`}
+                    download
+                     className="btn btn-primary mt-2 my-2"
+                     style={{color: "white",backgroundColor: "purple", borderRadius: "4px"}}
+                  >
+                    Download Image
+                  </a>
+                  <img
+                    src={`http://localhost:5000/${note.file}`}
+                    alt="Uploaded"
+                    style={{ width: '100%', maxHeight: '100%' }}
+                  />
+                  
+                </>
+              )}
+              {note.file.match(/\.(mp4|webm|ogg)$/) && (
+                <>
+                 <a
+                    href={`http://localhost:5000/${note.file}`}
+                    download
+                    className="btn btn-primary mt-2 my-2"
+                    style={{color: "white",backgroundColor: "purple", borderRadius: "4px"}}
+                  >
+                    Download Video
+                  </a>
+                  <video controls style={{ width: '100%' }}>
+                    <source src={`http://localhost:5000/${note.file}`} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </>
+              )}
+              {note.file.match(/\.pdf$/) && (
+                <>
+                 <a
+                    href={`http://localhost:5000/${note.file}`}
+                    download
+                    className="btn btn-primary mt-2 my-2"
+                    style={{color: "white",backgroundColor: "purple", borderRadius: "4px"}}
+                  >
+                    Download PDF
+                  </a>
+                  <iframe
+                    src={`http://localhost:5000/${note.file}`}
+                    width="100%"
+                    height="100%"
+                    title="PDF Viewer"
+                  ></iframe>
+                </>
+              )}
+            </>
 
-    useEffect(() => {
-        fetch("http://localhost:5000/api/notes/fetchallnotes", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "auth-token": localStorage.getItem("token") // Using token to authenticate
-            }
-        })
-        .then(response => response.json())
-        .then(data => setNotes(data))
-        .catch(error => {
-            console.error("Error fetching notes:", error);
-        });
-    }, []);
-
-    return (
-        <div>
-            <h2>Your Notes</h2>
-            <ul>
-                {notes.map((note) => (
-                    <li key={note._id}>
-                        <h3>{note.title}</h3>
-                        <p>{note.description}</p>
-                        <p>{note.tag}</p>
-                    </li>
-                ))}
-            </ul>
+          )}
         </div>
-    );
-};
+      </div>
+    </div>
+  )
+}
 
-export default NoteItem;
+export default Noteitem
+
