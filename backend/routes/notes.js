@@ -112,9 +112,10 @@ router.delete("/deletenote/:id", fetchuser, async (req, res) => {
 
         // 🗑️ Delete file (if any)
         if (note.file) {
-            const filePath = note.file.replace("/uploads/", "uploads/");
+            const filePath = path.join(__dirname, '../..', note.file);
+            console.log(filePath)
             if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
+                fs.unlinkSync(filePath);  // Delete the file from the server
             }
         }
 
