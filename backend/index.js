@@ -31,7 +31,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../', 'uploads')));// API Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/notes", require("./routes/notes"));
-app.use("/api/verifyEmail", require("./routes/verifyEmail"));
+app.use("/api/auth", require("./routes/verifyEmail"));
 
 // Reminder Feature: Runs Every Minute
 cron.schedule("* * * * *", async () => {
