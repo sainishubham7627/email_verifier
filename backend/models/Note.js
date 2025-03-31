@@ -26,7 +26,7 @@ const NoteSchema = new Schema({
     file:{
         type: String,
         default: null
-    }
+    },
     email: {
         type: String,
         validate: {

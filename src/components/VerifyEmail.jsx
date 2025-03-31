@@ -8,7 +8,7 @@ const VerifyEmail = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/auth/verify-email/${token}`);
+        const response = await fetch(`http://localhost:5000/api/auth/verify-email/${token}`);
         
         if (response.ok) {
           alert("Email verified successfully! Please log in.");

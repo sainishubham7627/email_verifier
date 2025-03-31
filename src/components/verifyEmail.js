@@ -8,7 +8,7 @@ const VerifyEmail = () => {
 
     useEffect(() => {
         const verifyEmail = async () => {
-            const response = await fetch(`http://localhost:3000/api/auth/verify-email/${token}`);
+            const response = await fetch(`http://localhost:5000/api/auth/verify-email/${token}`);
             const json = await response.json();
 
             if (json.success) {

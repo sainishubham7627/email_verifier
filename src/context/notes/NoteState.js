@@ -1,4 +1,5 @@
 import noteContext from "./noteContext";
+
 import { useState } from "react";
 
 const NoteState = (props) => {
@@ -8,7 +9,7 @@ const NoteState = (props) => {
 
   // ✅ Fetch All Notes
   const getNotes = async () => {
-    try {
+    try {     
       const response = await fetch(`${host}/api/notes/fetchallnotes`, {
         method: "GET",
         headers: {
