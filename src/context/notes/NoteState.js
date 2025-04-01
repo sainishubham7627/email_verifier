@@ -1,15 +1,13 @@
 import noteContext from "./noteContext";
-
 import { useState } from "react";
 
 const NoteState = (props) => {
-  const host = "http://localhost:5000"; // ✅ Changed port to 5000
-  const notesInitial = []
+  const host = "http://localhost:5000";
   const [notes, setNotes] = useState([]);
 
   // ✅ Fetch All Notes
   const getNotes = async () => {
-    try {     
+    try {
       const response = await fetch(`${host}/api/notes/fetchallnotes`, {
         method: "GET",
         headers: {
@@ -27,15 +25,20 @@ const NoteState = (props) => {
     }
   };
 
-  // ✅ Add a Note with Reminder
+  // ✅ Add a Note with Reminder & File Upload
   const addNote = async (title, description, tag, file, sendAt) => {
     try {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
       formData.append("tag", tag);
-      if (file) formData.append("file", file); // Attach file if available
-      if (sendAt) formData.append("sendAt", new Date(sendAt).toISOString()); // ✅ Convert to ISO format
+      if (file) formData.append("file", file);
+      if (sendAt) {
+        const parsedDate = new Date(sendAt);
+        if (!isNaN(parsedDate.getTime())) {
+          formData.append("sendAt", parsedDate.toISOString());
+        }
+      }
 
       const response = await fetch(`${host}/api/notes/addnote`, {
         method: "POST",
@@ -71,30 +74,39 @@ const NoteState = (props) => {
     }
   };
 
-  // ✅ Edit a Note (Including Reminder)
-  const editNote = async (id, title, description, tag, sendAt) => {
+  // ✅ Edit a Note (Including File & Reminder)
+  const editNote = async (id, title, description, tag, sendAt, file) => {
+    console.log("Editing Note ID:", id); // ✅ Log the ID before making the request
+
     try {
-      const response = await fetch(`${host}/api/notes/updatenote/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("token"),
-        },
-        body: JSON.stringify({ title, description, tag, sendAt }),
-      });
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("tag", tag);
 
-      if (!response.ok) throw new Error("Failed to update note");
+        if (sendAt) {
+            const parsedDate = new Date(sendAt);
+            if (!isNaN(parsedDate.getTime())) {
+                formData.append("sendAt", parsedDate.toISOString());
+            }
+        }
 
-      const json = await response.json();
+        if (file) formData.append("file", file);
 
-      const updatedNotes = notes.map((note) =>
-        note._id === id ? { ...note, title, description, tag, sendAt } : note
-      );
-      setNotes(updatedNotes);
+        const response = await fetch(`${host}/api/notes/updatenote/${id}`, {
+            method: "PUT",
+            headers: { "auth-token": localStorage.getItem("token") },
+            body: formData,
+        });
+
+        if (!response.ok) throw new Error("Failed to update note");
+
+        const updatedNote = await response.json();
+        setNotes(notes.map((note) => (note._id === id ? updatedNote.note : note)));
     } catch (error) {
-      console.error("❌ Error updating note:", error);
+        console.error("❌ Error updating note:", error);
     }
-  };
+};
 
   return (
     <noteContext.Provider value={{ notes, addNote, deleteNote, editNote, getNotes }}>

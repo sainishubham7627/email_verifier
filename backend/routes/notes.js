@@ -6,14 +6,16 @@ const { body, validationResult } = require("express-validator");
 const fetchuser = require("../middleware/fetchuser");
 const Note = require("../models/Note");
 const path = require("path");
-
-// 📂 Ensure "uploads" folder exists
 const fs = require("fs");
 
+// 📂 Configure Multer for File Uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, "uploads/"),
+    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+});
+const upload = multer({ storage });
 
-// ✅ Serve uploaded files statically
-
-// ✅ ROUTE 1: Fetch All Notes (GET "/api/notes/fetchallnotes") - Login required
+// ✅ ROUTE 1: Fetch All Notes
 router.get("/fetchallnotes", fetchuser, async (req, res) => {
     try {
         const notes = await Note.find({ user: req.user.id });
@@ -24,15 +26,7 @@ router.get("/fetchallnotes", fetchuser, async (req, res) => {
     }
 });
 
-// 📂 Configure Multer for File Uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-  });
-  const upload = multer({ storage });
-// Set file size limit and file filter
-
-// ✅ ROUTE 2: Add a New Note with File Upload (POST "/api/notes/addnote") - Login required
+// ✅ ROUTE 2: Add a New Note with File Upload
 router.post(
     "/addnote",
     fetchuser,
@@ -57,8 +51,8 @@ router.post(
                 description,
                 tag,
                 user: req.user.id,
-                 file: req.file ? req.file.path : null,
-                sendAt: sendAt ? new Date(sendAt) : null,
+                file: req.file ? `/uploads/${req.file.filename}` : null,
+                sendAt: sendAt && !isNaN(new Date(sendAt)) ? new Date(sendAt) : null,
                 email: sendAt ? email : null,
             });
 
@@ -71,28 +65,44 @@ router.post(
     }
 );
 
-// ✅ ROUTE 3: Update an Existing Note (PUT "/api/notes/updatenote/:id") - Login required
+// ✅ ROUTE 3: Update an Existing Note
 router.put("/updatenote/:id", fetchuser, upload.single("file"), async (req, res) => {
+    console.log("🔄 Update request received for Note ID:", req.params.id);
+
     const { title, description, tag, sendAt, email } = req.body;
+    
     try {
         let note = await Note.findById(req.params.id);
-        if (!note) return res.status(404).send("Note Not Found");
+        
+        if (!note) {
+            console.log("❌ Note not found in the database:", req.params.id);
+            return res.status(404).send("Note Not Found");
+        }
 
         if (note.user.toString() !== req.user.id) {
+            console.log("❌ Unauthorized user:", req.user.id);
             return res.status(401).send("Not Allowed");
         }
 
-       
+        let updatedData = {
+            title: title || note.title,
+            description: description || note.description,
+            tag: tag || note.tag,
+            sendAt: sendAt ? new Date(sendAt) : note.sendAt,
+            email: email || note.email,
+        };
 
-        // ✅ Update note fields
-        note.title = title || note.title;
-        note.description = description || note.description;
-        note.tag = tag || note.tag;
-        note.sendAt = sendAt ? new Date(sendAt) : note.sendAt;
-        note.email = email || note.email;
-        if (req.file) note.file = `/uploads/${req.file.filename}`;
+        if (req.file) {
+            if (note.file) {
+                const oldFilePath = path.join(__dirname, "../..", note.file);
+                if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+            }
+            updatedData.file = `/uploads/${req.file.filename}`;
+        }
 
-        await note.save();
+        note = await Note.findByIdAndUpdate(req.params.id, { $set: updatedData }, { new: true });
+
+        console.log("✅ Note updated successfully:", note);
         res.json({ note });
     } catch (error) {
         console.error("❌ Error updating note:", error.message);
@@ -100,7 +110,8 @@ router.put("/updatenote/:id", fetchuser, upload.single("file"), async (req, res)
     }
 });
 
-// ✅ ROUTE 4: Delete a Note (DELETE "/api/notes/deletenote/:id") - Login required
+
+// ✅ ROUTE 4: Delete a Note
 router.delete("/deletenote/:id", fetchuser, async (req, res) => {
     try {
         let note = await Note.findById(req.params.id);
@@ -112,11 +123,8 @@ router.delete("/deletenote/:id", fetchuser, async (req, res) => {
 
         // 🗑️ Delete file (if any)
         if (note.file) {
-            const filePath = path.join(__dirname, '../..', note.file);
-            console.log(filePath)
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);  // Delete the file from the server
-            }
+            const filePath = path.join(__dirname, "..", "uploads", path.basename(note.file));
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         }
 
         await Note.findByIdAndDelete(req.params.id);
